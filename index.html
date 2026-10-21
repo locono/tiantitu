@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天梯图 · tiantitu.com.cn · 手机SoC / CPU / GPU 性能排行</title>
+<style>
+  :root{
+    --card:#ffffff;
+    --ink:#1c2333;
+    --ink-2:#5a6478;
+    --ink-3:#9aa3b5;
+    --line:#e6eaf2;
+    --accent:#3d6df6;
+    --accent-soft:#e8eeff;
+    --nv:#5c9e04;      /* NVIDIA */
+    --amd:#e0332e;     /* AMD */
+    --intel:#0a6ad1;   /* Intel */
+    --apple:#6e7684;   /* Apple */
+    --qc:#3253dc;      /* Qualcomm */
+    --mtk:#f57c00;     /* MediaTek */
+    --hw:#c8102e;      /* HiSilicon/Huawei */
+    --mi:#ff6900;      /* Xiaomi */
+    --sam:#1428a0;     /* Samsung */
+    --gg:#4285f4;      /* Google */
+    --other:#8a93a6;
+    --t-s:#e11d48; --t-s-bg:#fde8ed;
+    --t-a:#0e8ce0; --t-a-bg:#e6f4fe;
+    --t-b:#12a35a; --t-b-bg:#e5f7ec;
+    --t-c:#e08a00; --t-c-bg:#fdf3e0;
+    --t-d:#98a2b3; --t-d-bg:#eef1f5;
+    --shadow:0 2px 12px rgba(28,35,51,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+    background:
+      radial-gradient(1100px 420px at 85% -120px, #e3d9ff 0%, transparent 58%),
+      radial-gradient(900px 400px at 3% -100px, #ffe4ec 0%, transparent 55%),
+      radial-gradient(700px 500px at 50% 108%, #d5f6ec 0%, transparent 55%),
+      linear-gradient(180deg,#faf7ff 0%,#f4f6fb 40%,#f2f9f6 100%);
+    color:var(--ink);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .head-in{display:flex;align-items:center;gap:16px;height:68px}
+  .logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--ink);flex:none}
+  .logo .mark{
+    width:40px;height:40px;border-radius:12px;flex:none;
+    background:linear-gradient(135deg,#8b5cf6,#ec4899 45%,#f59e0b 80%,#10b981);
+    box-shadow:0 4px 14px rgba(139,92,246,.35);
+    display:flex;align-items:flex-end;justify-content:center;gap:3px;
+    padding:0 8px 8px;
+  }
+  .logo .mark i{display:block;border-radius:2.5px 2.5px 0 0;background:rgba(255,255,255,.95)}
+  .logo .mark i:nth-child(1){width:6px;height:10px}
+  .logo .mark i:nth-child(2){width:6px;height:17px}
+  .logo .mark i:nth-child(3){width:6px;height:24px}
+  .logo .txt{display:flex;flex-direction:column;line-height:1.15}
+  .logo .txt b{
+    font-size:21px;font-weight:900;letter-spacing:1px;
+    background:linear-gradient(90deg,#7c3aed,#ec4899 55%,#f97316);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .logo .txt span{font-size:10.5px;color:var(--ink-3);letter-spacing:.6px;font-weight:600}
+  .head-meta{margin-left:auto;font-size:12px;color:var(--ink-3);white-space:nowrap}
+  .head-meta b{color:var(--ink-2);font-weight:600}
+
+  /* ---------- tabs ---------- */
+  .tabs{display:flex;gap:8px;padding:10px 0 14px;flex-wrap:wrap}
+  .tab{
+    display:flex;align-items:center;gap:8px;
+    padding:10px 16px;border-radius:12px;cursor:pointer;
+    font-size:14.5px;font-weight:600;color:var(--ink-2);
+    background:var(--card);border:1.5px solid var(--line);
+    transition:all .18s ease;user-select:none;
+    --tc:var(--accent);
+  }
+  .tab .ico{font-size:17px;line-height:1}
+  .tab:hover{border-color:color-mix(in srgb,var(--tc) 45%,white);transform:translateY(-1px)}
+  .tab.on{
+    background:linear-gradient(135deg,var(--tc),color-mix(in srgb,var(--tc) 70%,#ec4899));
+    color:#fff;border-color:transparent;
+    box-shadow:0 4px 14px color-mix(in srgb,var(--tc) 45%,transparent);
+  }
+  .tab.on .ico{filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))}
+
+  /* ---------- search ---------- */
+  .searchbar{display:flex;gap:10px;align-items:center;margin:2px 0 16px}
+  .searchbox{
+    flex:1;display:flex;align-items:center;gap:10px;
+    background:var(--card);border:1.5px solid var(--line);border-radius:12px;
+    padding:0 14px;height:46px;transition:border .18s;
+  }
+  .searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .searchbox svg{flex:none;opacity:.45}
+  .searchbox input{
+    flex:1;border:0;outline:0;background:transparent;
+    font-size:15px;color:var(--ink);height:100%;
+  }
+  .searchbox input::placeholder{color:var(--ink-3)}
+  .searchbox .clear{
+    display:none;cursor:pointer;color:var(--ink-3);font-size:16px;
+    width:22px;height:22px;border-radius:50%;background:var(--line);
+    line-height:20px;text-align:center;flex:none;
+  }
+  .searchbox .clear:hover{color:var(--ink)}
+  .searchbox.hasval .clear{display:block}
+  .count{
+    font-size:12.5px;color:var(--ink-3);white-space:nowrap;min-width:74px;text-align:right;
+  }
+  .count b{color:var(--accent);font-size:14px}
+
+  /* ---------- section head ---------- */
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin:6px 0 14px;flex-wrap:wrap}
+  .sec-head h2{font-size:21px;font-weight:900;letter-spacing:.5px}
+  .sec-head .sub{font-size:12.5px;color:var(--ink-3)}
+
+  /* ---------- legend ---------- */
+  .legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px;font-size:12px;color:var(--ink-2)}
+  .legend .li{display:flex;align-items:center;gap:6px}
+  .legend .sw{width:10px;height:10px;border-radius:3px}
+
+  /* ---------- ladder ---------- */
+  .ladder{display:flex;flex-direction:column;gap:8px;padding-bottom:8px}
+  .row{
+    display:grid;
+    grid-template-columns:44px 52px minmax(150px,220px) 1fr 64px;
+    align-items:center;gap:12px;
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:9px 14px 9px 10px;
+    transition:box-shadow .15s, transform .15s, border-color .15s;
+    animation:rise .3s ease both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .row:hover{box-shadow:var(--shadow);border-color:#cfd9ee;transform:translateX(2px)}
+  .rank{font-weight:800;font-size:15px;color:var(--ink-3);text-align:center}
+  .row:nth-child(1) .rank,.row:nth-child(2) .rank,.row:nth-child(3) .rank{color:var(--accent);font-size:16px}
+  .tier{
+    text-align:center;font-weight:800;font-size:12.5px;
+    padding:4px 0;border-radius:8px;letter-spacing:.5px;
+  }
+  .t-S{background:var(--t-s-bg);color:var(--t-s)}
+  .t-A{background:var(--t-a-bg);color:var(--t-a)}
+  .t-B{background:var(--t-b-bg);color:var(--t-b)}
+  .t-C{background:var(--t-c-bg);color:var(--t-c)}
+  .t-D{background:var(--t-d-bg);color:var(--t-d)}
+  .name{min-width:0}
+  .name .nm{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .name .nm mark{background:#ffe9a8;padding:0 1px;border-radius:3px}
+  .name .meta{font-size:11.5px;color:var(--ink-3);margin-top:2px;display:flex;gap:8px;align-items:center}
+  .bdot{width:8px;height:8px;border-radius:50%;flex:none;display:inline-block}
+  .barwrap{position:relative;height:22px;border-radius:7px;background:#eef1f7;overflow:hidden}
+  .bar{
+    position:absolute;inset:0 auto 0 0;border-radius:7px;
+    min-width:6px;
+    transition:width .5s cubic-bezier(.22,.8,.3,1);
+  }
+  .bar::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(90deg,rgba(255,255,255,.28),transparent 55%);
+  }
+  .score{font-weight:800;font-size:15px;text-align:right;font-variant-numeric:tabular-nums}
+
+  .empty{
+    text-align:center;color:var(--ink-3);padding:60px 0;font-size:14px;
+    background:var(--card);border:1px dashed var(--line);border-radius:14px;
+  }
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);margin-top:28px;padding:22px 0 40px}
+  .foot-in{display:flex;gap:14px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+  .foot-in p{font-size:12px;color:var(--ink-3);line-height:1.8}
+  .foot-in p b{color:var(--ink-2)}
+  .domain-badge{
+    display:inline-block;
+    font-size:19px;font-weight:900;letter-spacing:.5px;
+    padding:10px 22px;border-radius:999px;
+    color:#fff;
+    background:linear-gradient(90deg,#7c3aed,#ec4899 50%,#f97316);
+    box-shadow:0 6px 18px rgba(236,72,153,.35);
+  }
+
+  @media (max-width:640px){
+    .row{grid-template-columns:32px 44px 1fr 56px;gap:8px;padding:8px 10px}
+    .barwrap{display:none}
+    .head-meta{display:none}
+    .tab{padding:8px 12px;font-size:13px}
+    .logo{font-size:16px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-in">
+      <div class="logo">
+        <div class="mark"><i></i><i></i><i></i></div>
+        <div class="txt"><b>天梯图</b><span>tiantitu.com.cn</span></div>
+      </div>
+      <div class="head-meta">数据截至 <b>2026 年 10 月</b> · 分数为同类别内相对性能指数</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:18px">
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <div class="searchbar">
+    <div class="searchbox" id="sbox">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1c2333" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="页面内搜索：输入型号关键词，如 5090、天玑、锐龙、A20、9800X3D…" autocomplete="off">
+      <span class="clear" id="sclear">×</span>
+    </div>
+    <div class="count" id="count"></div>
+  </div>
+
+  <div class="sec-head">
+    <h2 id="secTitle"></h2>
+    <span class="sub" id="secSub"></span>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <div class="ladder" id="ladder"></div>
+
+</main>
+
+<footer>
+  <div class="wrap foot-in">
+    <p><b>说明：</b>分数为综合公开跑分（Cinebench / Geekbench / 3DMark / 安兔兔等）归一化后的<b>相对性能指数</b>（榜首 = 100），仅供横向参考，不代表绝对性能；带 X3D / 3D 缓存型号在部分游戏场景实际表现更高。数据整理自公开评测，截至 2026 年 10 月，若有出入以厂商官方规格为准。</p>
+    <p style="white-space:nowrap;display:flex;align-items:center;justify-content:flex-end;gap:14px">
+      <span style="color:var(--ink-2);font-size:12.5px;font-weight:600">© 2026 天梯图 · 硬件性能排行</span>
+      <span class="domain-badge">tiantitu.com.cn</span>
+    </p>
+  </div>
+</footer>
+
+<script>
+/* ============ 品牌色 ============ */
+const BRAND = {
+  "NVIDIA":"var(--nv)","AMD":"var(--amd)","Intel":"var(--intel)","Apple":"var(--apple)",
+  "高通":"var(--qc)","联发科":"var(--mtk)","麒麟":"var(--hw)","玄戒":"var(--mi)",
+  "三星":"var(--sam)","Google":"var(--gg)","其他":"var(--other)"
+};
+
+/* ============ 梯队划分 ============ */
+function tierOf(s){
+  if(s>=90) return ["S","旗舰"];
+  if(s>=70) return ["A","高端"];
+  if(s>=45) return ["B","主流"];
+  if(s>=25) return ["C","中端"];
+  return ["D","入门"];
+}
+const TIER_COLORS = {"S":"#e11d48","A":"#0e8ce0","B":"#12a35a","C":"#e08a00","D":"#98a2b3"};
+
+/* ============ 数据（截至 2026-10） ============ */
+const DATA = [
+{
+  id:"soc", icon:"📱", name:"手机 SoC 天梯图", c:"#8b5cf6",
+  sub:"智能手机 / 平板处理器 · 综合性能指数",
+  items:[
+    {n:"骁龙 8 Elite Gen 6",b:"高通",s:100,y:2026,a:"8elite gen6 8eg6 sm8870"},
+    {n:"天玑 9600 Pro",b:"联发科",s:98,y:2026,a:"dimensity 9600pro mtk"},
+    {n:"A20 Pro",b:"Apple",s:97,y:2026,a:"苹果 iphone18"},
+    {n:"玄戒 O3",b:"玄戒",s:96,y:2026,a:"xiaomi xrING o3 小米"},
+    {n:"天玑 9600",b:"联发科",s:94,y:2026,a:"dimensity 9600"},
+    {n:"骁龙 8 Elite Gen 5",b:"高通",s:93,y:2025,a:"8elite gen5 sm8850 至尊版二代"},
+    {n:"天玑 9500",b:"联发科",s:92,y:2025,a:"dimensity 9500"},
+    {n:"猎户座 2600",b:"三星",s:90,y:2026,a:"exynos 2600 s2600"},
+    {n:"A19 Pro",b:"Apple",s:88,y:2025,a:"苹果 iphone17pro"},
+    {n:"天玑 9500s",b:"联发科",s:85,y:2026,a:"dimensity 9500s"},
+    {n:"骁龙 8 至尊版",b:"高通",s:84,y:2024,a:"8 elite gen4 sm8750 第一代至尊版"},
+    {n:"天玑 9400+",b:"联发科",s:82,y:2025,a:"dimensity 9400plus"},
+    {n:"玄戒 O1",b:"玄戒",s:81,y:2025,a:"xiaomi xrING o1 小米"},
+    {n:"天玑 9400",b:"联发科",s:80,y:2024,a:"dimensity 9400"},
+    {n:"骁龙 8 Gen 5",b:"高通",s:79,y:2025,a:"8gen5 sm8750p"},
+    {n:"A19",b:"Apple",s:77,y:2025,a:"苹果 iphone17"},
+    {n:"Tensor G6",b:"Google",s:72,y:2026,a:"谷歌 g6 pixel11"},
+    {n:"天玑 9300+",b:"联发科",s:72,y:2024,a:"dimensity 9300plus"},
+    {n:"骁龙 8 Gen 3",b:"高通",s:71,y:2023,a:"8gen3 sm8650 领先版"},
+    {n:"骁龙 8s Gen 4",b:"高通",s:70,y:2025,a:"8s gen4 sm8735"},
+    {n:"A18 Pro",b:"Apple",s:70,y:2024,a:"苹果 iphone16pro"},
+    {n:"天玑 9400e",b:"联发科",s:68,y:2025,a:"dimensity 9400e"},
+    {n:"天玑 8500",b:"联发科",s:64,y:2026,a:"dimensity 8500"},
+    {n:"A18",b:"Apple",s:63,y:2024,a:"苹果 iphone16"},
+    {n:"骁龙 8 Gen 2",b:"高通",s:62,y:2022,a:"8gen2 sm8550"},
+    {n:"天玑 9200+",b:"联发科",s:61,y:2023,a:"dimensity 9200plus"},
+    {n:"骁龙 7+ Gen 3",b:"高通",s:60,y:2024,a:"7plus gen3 sm7675"},
+    {n:"骁龙 7 Gen 4",b:"高通",s:59,y:2025,a:"7gen4 sm7677"},
+    {n:"A17 Pro",b:"Apple",s:58,y:2023,a:"苹果 iphone15pro"},
+    {n:"天玑 9200",b:"联发科",s:56,y:2022,a:"dimensity 9200"},
+    {n:"A16 Bionic",b:"Apple",s:55,y:2022,a:"苹果 iphone14pro"},
+    {n:"天玑 8400",b:"联发科",s:54,y:2024,a:"dimensity 8400 max ultra"},
+    {n:"Tensor G5",b:"Google",s:52,y:2025,a:"谷歌 g5 pixel10"},
+    {n:"骁龙 8+ Gen 1",b:"高通",s:51,y:2022,a:"8plus gen1 sm8475"},
+    {n:"麒麟 9020",b:"麒麟",s:50,y:2024,a:"kirin 9020 华为 mate70"},
+    {n:"天玑 8300",b:"联发科",s:48,y:2023,a:"dimensity 8300 ultra"},
+    {n:"骁龙 8 Gen 1",b:"高通",s:45,y:2021,a:"8gen1 sm8450"},
+    {n:"麒麟 9010",b:"麒麟",s:43,y:2024,a:"kirin 9010 华为 pura70"},
+    {n:"天玑 9000",b:"联发科",s:42,y:2021,a:"dimensity 9000"},
+    {n:"骁龙 888",b:"高通",s:38,y:2020,a:"sm8350"},
+    {n:"麒麟 9000S",b:"麒麟",s:37,y:2023,a:"kirin 9000s 华为 mate60"},
+    {n:"骁龙 870",b:"高通",s:35,y:2021,a:"sm8250-ac"},
+    {n:"天玑 8100",b:"联发科",s:33,y:2022,a:"dimensity 8100"},
+    {n:"骁龙 865",b:"高通",s:34,y:2019,a:"sm8250"},
+    {n:"天玑 8550",b:"联发科",s:57,y:2025,a:"dimensity 8550"},
+    {n:"Exynos 2400",b:"三星",s:55,y:2024,a:"猎户座 2400 s24"},
+    {n:"天玑 8400-Ultra",b:"联发科",s:52,y:2025,a:"dimensity 8400ultra redmi"},
+    {n:"Tensor G4",b:"Google",s:49,y:2024,a:"谷歌 g4 pixel9"},
+    {n:"骁龙 7s Gen 3",b:"高通",s:48,y:2024,a:"7s gen3 sm7635"},
+    {n:"Exynos 1580",b:"三星",s:46,y:2025,a:"猎户座 1580 a56"},
+    {n:"骁龙 7 Gen 3",b:"高通",s:46,y:2023,a:"7gen3 sm7550"},
+    {n:"天玑 7300",b:"联发科",s:41,y:2024,a:"dimensity 7300"},
+    {n:"骁龙 6 Gen 1",b:"高通",s:37,y:2022,a:"6gen1 sm6450"},
+    {n:"天玑 7020",b:"联发科",s:31,y:2023,a:"dimensity 7020"},
+    {n:"麒麟 T92",b:"麒麟",s:29,y:2025,a:"kirin t92 畅享 nova"},
+    {n:"展锐 T765",b:"其他",s:27,y:2023,a:"unisoc t765 紫光展锐"},
+    {n:"骁龙 4 Gen 2",b:"高通",s:26,y:2023,a:"4gen2 sm6450"},
+    {n:"天玑 6100+",b:"联发科",s:22,y:2023,a:"dimensity 6100plus"},
+    {n:"骁龙 685",b:"高通",s:20,y:2023,a:"sm6225-ad 入门"},
+    {n:"天玑 8200",b:"联发科",s:50,y:2023,a:"dimensity 8200"},
+    {n:"天玑 8020",b:"联发科",s:45,y:2023,a:"dimensity 8020"},
+    {n:"骁龙 7s Gen 2",b:"高通",s:44,y:2023,a:"7s gen2 sm7435"},
+    {n:"Tensor G3",b:"Google",s:42,y:2023,a:"谷歌 g3 pixel8"},
+    {n:"Exynos 2200",b:"三星",s:40,y:2022,a:"猎户座 2200 s22"},
+    {n:"骁龙 7 Gen 1",b:"高通",s:35,y:2022,a:"7gen1 sm7325"},
+    {n:"骁龙 780G",b:"高通",s:36,y:2021,a:"780g sm7350"},
+    {n:"骁龙 778G",b:"高通",s:38,y:2021,a:"778g 778gplus"},
+    {n:"天玑 1100",b:"联发科",s:34,y:2021,a:"dimensity 1100"},
+    {n:"骁龙 855",b:"高通",s:33,y:2019,a:"sm8150"},
+    {n:"麒麟 9000E",b:"麒麟",s:33,y:2020,a:"kirin 9000e mate40"},
+    {n:"麒麟 990",b:"麒麟",s:30,y:2019,a:"kirin 990 mate30"},
+    {n:"天玑 1000+",b:"联发科",s:31,y:2020,a:"dimensity 1000plus"},
+    {n:"骁龙 765G",b:"高通",s:30,y:2019,a:"765g sm7250"},
+    {n:"麒麟 985",b:"麒麟",s:32,y:2020,a:"kirin 985 nova7"},
+    {n:"天玑 900",b:"联发科",s:29,y:2021,a:"dimensity 900"},
+    {n:"天玑 7200",b:"联发科",s:28,y:2023,a:"dimensity 7200"},
+    {n:"骁龙 695",b:"高通",s:27,y:2021,a:"695 sm6375"},
+    {n:"骁龙 480",b:"高通",s:24,y:2021,a:"480 5g 入门"},
+    {n:"展锐 T616",b:"其他",s:17,y:2021,a:"unisoc t616 紫光展锐 入门"},
+    {n:"麒麟 9000",b:"麒麟",s:33,y:2020,a:"kirin 9000 华为 mate40"}
+  ]
+},
+{
+  id:"dcpu", icon:"🖥️", name:"台式机 CPU 天梯图", c:"#f43f5e",
+  sub:"桌面处理器 · 多线程综合性能指数（游戏向 X3D 型号实际帧率更强）",
+  items:[
+    {n:"锐龙 9 10900X3D",b:"AMD",s:100,y:2026,a:"ryzen 9 10900x3d zen6 am6 3dv"},
+    {n:"锐龙 9 10900X",b:"AMD",s:98,y:2026,a:"ryzen 9 10900x zen6 am6"},
+    {n:"酷睿 Ultra 9 395K",b:"Intel",s:96,y:2026,a:"core ultra9 395k nova lake lga1954"},
+    {n:"锐龙 Threadripper 9990WX",b:"AMD",s:96,y:2026,a:"threadripper 9990wx 线程撕裂者 hedt"},
+    {n:"锐龙 9 9950X3D",b:"AMD",s:93,y:2025,a:"ryzen 9 9950x3d zen5 3dv"},
+    {n:"酷睿 Ultra 9 285K",b:"Intel",s:90,y:2024,a:"core ultra9 285k arrow lake lga1851"},
+    {n:"锐龙 9 9950X",b:"AMD",s:88,y:2024,a:"ryzen 9 9950x zen5"},
+    {n:"锐龙 7 10700X3D",b:"AMD",s:87,y:2026,a:"ryzen 7 10700x3d zen6"},
+    {n:"锐龙 7 10700X",b:"AMD",s:85,y:2026,a:"ryzen 7 10700x zen6"},
+    {n:"酷睿 Ultra 7 375K",b:"Intel",s:84,y:2026,a:"core ultra7 375k nova lake"},
+    {n:"锐龙 7 9800X3D",b:"AMD",s:83,y:2024,a:"ryzen 7 9800x3d 游戏神u zen5"},
+    {n:"酷睿 Ultra 9 390K",b:"Intel",s:82,y:2026,a:"core ultra9 390k nova lake"},
+    {n:"酷睿 Ultra 7 265K",b:"Intel",s:80,y:2024,a:"core ultra7 265k arrow lake"},
+    {n:"锐龙 9 9900X",b:"AMD",s:78,y:2024,a:"ryzen 9 9900x zen5"},
+    {n:"酷睿 Ultra 5 345K",b:"Intel",s:75,y:2026,a:"core ultra5 345k nova lake"},
+    {n:"锐龙 7 9700X",b:"AMD",s:73,y:2024,a:"ryzen 7 9700x zen5"},
+    {n:"锐龙 5 10600X",b:"AMD",s:71,y:2026,a:"ryzen 5 10600x zen6"},
+    {n:"酷睿 Ultra 5 245K",b:"Intel",s:70,y:2024,a:"core ultra5 245k arrow lake"},
+    {n:"酷睿 i9-14900K",b:"Intel",s:69,y:2023,a:"i9 14900k 14900ks raptor lake 14代"},
+    {n:"锐龙 5 10600X3D",b:"AMD",s:68,y:2026,a:"ryzen 5 10600x3d zen6"},
+    {n:"锐龙 7 7800X3D",b:"AMD",s:66,y:2023,a:"ryzen 7 7800x3d 游戏 zen4"},
+    {n:"锐龙 5 9600X",b:"AMD",s:64,y:2024,a:"ryzen 5 9600x zen5"},
+    {n:"酷睿 i7-14700K",b:"Intel",s:63,y:2023,a:"i7 14700k 14代"},
+    {n:"酷睿 Ultra 5 235K",b:"Intel",s:62,y:2025,a:"core ultra5 235k"},
+    {n:"锐龙 9 7900X",b:"AMD",s:61,y:2022,a:"ryzen 9 7900x zen4"},
+    {n:"酷睿 i5-14600K",b:"Intel",s:59,y:2023,a:"i5 14600k 14600kf 14代"},
+    {n:"锐龙 7 7700X",b:"AMD",s:58,y:2022,a:"ryzen 7 7700x zen4"},
+    {n:"锐龙 5 7600X3D",b:"AMD",s:56,y:2024,a:"ryzen 5 7600x3d"},
+    {n:"酷睿 i5-14400F",b:"Intel",s:53,y:2024,a:"i5 14400f 14400"},
+    {n:"锐龙 5 7600X",b:"AMD",s:52,y:2022,a:"ryzen 5 7600x zen4"},
+    {n:"锐龙 5 7500F",b:"AMD",s:50,y:2023,a:"ryzen 5 7500f 性价比"},
+    {n:"酷睿 i5-13400F",b:"Intel",s:47,y:2023,a:"i5 13400f 13代"},
+    {n:"酷睿 i5-12400F",b:"Intel",s:42,y:2022,a:"i5 12400f 12代 alder lake"},
+    {n:"锐龙 5 5600X",b:"AMD",s:41,y:2020,a:"ryzen 5 5600x am4 zen3"},
+    {n:"锐龙 5 5500",b:"AMD",s:33,y:2022,a:"ryzen 5 5500 am4"},
+    {n:"酷睿 i3-13100F",b:"Intel",s:32,y:2023,a:"i3 13100f 13代"},
+    {n:"锐龙 Threadripper 7970X",b:"AMD",s:90,y:2023,a:"threadripper 7970x 线程撕裂者 storm peak"},
+    {n:"锐龙 9 9900X3D",b:"AMD",s:84,y:2025,a:"ryzen 9 9900x3d zen5 3dv"},
+    {n:"锐龙 9 7950X",b:"AMD",s:77,y:2022,a:"ryzen 9 7950x am5 zen4"},
+    {n:"酷睿 Ultra 7 265",b:"Intel",s:76,y:2025,a:"core ultra7 265 非 K 版"},
+    {n:"锐龙 7 9700F",b:"AMD",s:70,y:2025,a:"ryzen 7 9700f 无核显"},
+    {n:"酷睿 i9-13900K",b:"Intel",s:66,y:2022,a:"i9 13900k 13900ks 13代 raptor lake"},
+    {n:"酷睿 Ultra 5 225F",b:"Intel",s:63,y:2025,a:"core ultra5 225f"},
+    {n:"锐龙 5 9600",b:"AMD",s:62,y:2025,a:"ryzen 5 9600 非 X"},
+    {n:"锐龙 7 8700F",b:"AMD",s:62,y:2024,a:"ryzen 7 8700f phoenix 无核显"},
+    {n:"锐龙 5 8400F",b:"AMD",s:57,y:2024,a:"ryzen 5 8400f 性价比"},
+    {n:"酷睿 i5-13600K",b:"Intel",s:57,y:2022,a:"i5 13600k 13600kf 13代"},
+    {n:"酷睿 i7-13700K",b:"Intel",s:59,y:2022,a:"i7 13700k 13代"},
+    {n:"锐龙 7 5800X3D",b:"AMD",s:54,y:2022,a:"ryzen 7 5800x3d am4 游戏神u"},
+    {n:"酷睿 i5-12600K",b:"Intel",s:52,y:2021,a:"i5 12600k 12代 alder lake"},
+    {n:"锐龙 5 5700X3D",b:"AMD",s:49,y:2024,a:"ryzen 5 5700x3d am4"},
+    {n:"酷睿 i5-13400",b:"Intel",s:50,y:2023,a:"i5 13400 13400f"},
+    {n:"锐龙 7 5800X",b:"AMD",s:46,y:2020,a:"ryzen 7 5800x am4 zen3"},
+    {n:"酷睿 i3-14100F",b:"Intel",s:44,y:2024,a:"i3 14100f 14代"},
+    {n:"酷睿 i5-12400",b:"Intel",s:41,y:2022,a:"i5 12400 12400f 12代"},
+    {n:"锐龙 5 5600GT",b:"AMD",s:40,y:2024,a:"ryzen 5 5600gt am4 核显"},
+    {n:"锐龙 5 5600",b:"AMD",s:38,y:2022,a:"ryzen 5 5600 am4"},
+    {n:"酷睿 i3-13100",b:"Intel",s:35,y:2023,a:"i3 13100 13代"},
+    {n:"锐龙 3 4100",b:"AMD",s:24,y:2022,a:"ryzen 3 4100 am4 入门"},
+    {n:"速龙 3000G",b:"AMD",s:12,y:2019,a:"athlon 3000g am4 办公"},
+    {n:"锐龙 3 4300G",b:"AMD",s:26,y:2023,a:"ryzen 3 4300g apu"},
+    {n:"锐龙 9 5950X",b:"AMD",s:72,y:2020,a:"ryzen 9 5950x am4 旗舰"},
+    {n:"锐龙 9 5900X",b:"AMD",s:69,y:2020,a:"ryzen 9 5900x am4 zen3"},
+    {n:"锐龙 9 3900X",b:"AMD",s:48,y:2019,a:"ryzen 9 3900x zen2"},
+    {n:"酷睿 i9-11900K",b:"Intel",s:48,y:2021,a:"i9 11900k 11代 rocket lake"},
+    {n:"酷睿 i5-11400F",b:"Intel",s:43,y:2021,a:"i5 11400f 11代 性价比"},
+    {n:"酷睿 i7-11700K",b:"Intel",s:45,y:2021,a:"i7 11700k 11代"},
+    {n:"锐龙 7 3700X",b:"AMD",s:44,y:2019,a:"ryzen 7 3700x zen2 am4"},
+    {n:"酷睿 i9-9900K",b:"Intel",s:40,y:2018,a:"i9 9900k 9代"},
+    {n:"锐龙 5 3600",b:"AMD",s:40,y:2019,a:"ryzen 5 3600 zen2 神u"},
+    {n:"酷睿 i7-9700K",b:"Intel",s:36,y:2018,a:"i7 9700k 9代"},
+    {n:"酷睿 i7-8700K",b:"Intel",s:37,y:2017,a:"i7 8700k 8代 coffee lake"},
+    {n:"锐龙 5 2600",b:"AMD",s:32,y:2018,a:"ryzen 5 2600 zen+"},
+    {n:"酷睿 i5-9400F",b:"Intel",s:33,y:2019,a:"i5 9400f 9代"},
+    {n:"酷睿 i5-8400",b:"Intel",s:30,y:2017,a:"i5 8400 8代"},
+    {n:"锐龙 5 1600",b:"AMD",s:24,y:2017,a:"ryzen 5 1600 zen"},
+    {n:"酷睿 i7-7700K",b:"Intel",s:28,y:2017,a:"i7 7700k 7代 kaby lake"},
+    {n:"酷睿 i5-7500",b:"Intel",s:22,y:2017,a:"i5 7500 7代"},
+    {n:"锐龙 3 3200G",b:"AMD",s:16,y:2019,a:"ryzen 3 3200g apu"},
+    {n:"酷睿 i3-7100",b:"Intel",s:14,y:2017,a:"i3 7100 7代 入门"}
+  ]
+},
+{
+  id:"lcpu", icon:"💻", name:"笔记本 CPU 天梯图", c:"#0ea5e9",
+  sub:"移动处理器 · 综合性能指数（含 HX / H / U 与 Apple Silicon）",
+  items:[
+    {n:"Apple M5 Max",b:"Apple",s:100,y:2026,a:"苹果 m5max macbook pro"},
+    {n:"酷睿 Ultra 9 385HX",b:"Intel",s:94,y:2026,a:"core ultra9 385hx nova lake-h 游戏本"},
+    {n:"Apple M5 Pro",b:"Apple",s:93,y:2026,a:"苹果 m5pro"},
+    {n:"锐龙 9 9955HX3D",b:"AMD",s:92,y:2026,a:"ryzen 9 9955hx3d zen6 游戏本"},
+    {n:"Apple M4 Max",b:"Apple",s:90,y:2024,a:"苹果 m4max macbookpro"},
+    {n:"锐龙 AI Max+ 395",b:"AMD",s:87,y:2025,a:"ryzen ai max plus 395 strix halo 核显全能本"},
+    {n:"锐龙 9 9955HX",b:"AMD",s:85,y:2026,a:"ryzen 9 9955hx zen6"},
+    {n:"Apple M5",b:"Apple",s:83,y:2025,a:"苹果 m5 macbookpro14"},
+    {n:"酷睿 Ultra 9 275HX",b:"Intel",s:82,y:2025,a:"core ultra9 275hx arrow lake-hx 游戏本"},
+    {n:"Apple M4 Pro",b:"Apple",s:80,y:2024,a:"苹果 m4pro"},
+    {n:"锐龙 9 9850HX",b:"AMD",s:76,y:2025,a:"ryzen 9 9850hx"},
+    {n:"Apple M4",b:"Apple",s:75,y:2024,a:"苹果 m4 macbookpro macmini"},
+    {n:"锐龙 AI 9 HX 470",b:"AMD",s:72,y:2025,a:"ryzen ai9 hx470 hx370 strix point"},
+    {n:"酷睿 Ultra 9 285H",b:"Intel",s:70,y:2025,a:"core ultra9 285h arrow lake-h"},
+    {n:"Apple M3 Max",b:"Apple",s:69,y:2023,a:"苹果 m3max"},
+    {n:"酷睿 Ultra 7 265H",b:"Intel",s:66,y:2025,a:"core ultra7 265h"},
+    {n:"酷睿 Ultra 7 365",b:"Intel",s:68,y:2026,a:"core ultra7 365 panther lake 18A"},
+    {n:"酷睿 Ultra 7 355",b:"Intel",s:64,y:2026,a:"core ultra7 355 panther lake"},
+    {n:"酷睿 Ultra 5 335",b:"Intel",s:58,y:2026,a:"core ultra5 335 panther lake"},
+    {n:"酷睿 Ultra 5 325",b:"Intel",s:54,y:2026,a:"core ultra5 325 panther lake"},
+    {n:"酷睿 Ultra 5 332",b:"Intel",s:52,y:2026,a:"core ultra5 332 panther lake"},
+    {n:"Core 7 360",b:"Intel",s:44,y:2026,a:"core 7 360 panther lake 无 NPU 全配"},
+    {n:"Core 7 350",b:"Intel",s:42,y:2026,a:"core 7 350 panther lake"},
+    {n:"Core 5 330",b:"Intel",s:38,y:2026,a:"core 5 330 panther lake"},
+    {n:"Core 5 320",b:"Intel",s:36,y:2026,a:"core 5 320 panther lake"},
+    {n:"Core 5 315",b:"Intel",s:32,y:2026,a:"core 5 315 panther lake 入门"},
+    {n:"锐龙 AI 7 460",b:"AMD",s:63,y:2026,a:"ryzen ai7 460 gorgon point"},
+    {n:"酷睿 Ultra 7 255H",b:"Intel",s:61,y:2025,a:"core ultra7 255h"},
+    {n:"Apple M3 Pro",b:"Apple",s:59,y:2023,a:"苹果 m3pro"},
+    {n:"酷睿 Ultra 9 185H",b:"Intel",s:57,y:2023,a:"core ultra9 185h meteor lake"},
+    {n:"Apple M3",b:"Apple",s:56,y:2023,a:"苹果 m3"},
+    {n:"锐龙 9 8945HS",b:"AMD",s:55,y:2024,a:"ryzen 9 8945hs 8940hs hawk point"},
+    {n:"酷睿 Ultra 5 235H",b:"Intel",s:53,y:2026,a:"core ultra5 235h"},
+    {n:"酷睿 i9-14900HX",b:"Intel",s:52,y:2024,a:"i9 14900hx raptor lake-hx 游戏本"},
+    {n:"Apple M2 Pro",b:"Apple",s:50,y:2023,a:"苹果 m2pro"},
+    {n:"锐龙 7 8845HS",b:"AMD",s:53,y:2024,a:"ryzen 7 8845hs 8840hs"},
+    {n:"酷睿 Ultra 7 155H",b:"Intel",s:47,y:2023,a:"core ultra7 155h meteor lake"},
+    {n:"锐龙 AI 5 340",b:"AMD",s:46,y:2025,a:"ryzen ai5 340 krackan point"},
+    {n:"酷睿 i7-14650HX",b:"Intel",s:45,y:2024,a:"i7 14650hx"},
+    {n:"酷睿 Ultra 5 125H",b:"Intel",s:43,y:2023,a:"core ultra5 125h"},
+    {n:"锐龙 7 7735HS",b:"AMD",s:37,y:2023,a:"ryzen 7 7735hs rembrandt-r"},
+    {n:"Apple M2",b:"Apple",s:39,y:2022,a:"苹果 m2 air"},
+    {n:"酷睿 Ultra 7 258V",b:"Intel",s:37,y:2024,a:"core ultra7 258v lunar lake 轻薄本"},
+    {n:"锐龙 5 8645HS",b:"AMD",s:38,y:2024,a:"ryzen 5 8645hs"},
+    {n:"酷睿 i5-13500H",b:"Intel",s:36,y:2023,a:"i5 13500h 13代"},
+    {n:"锐龙 5 7535HS",b:"AMD",s:31,y:2023,a:"ryzen 5 7535hs"},
+    {n:"酷睿 Ultra 5 226V",b:"Intel",s:28,y:2024,a:"core ultra5 226v lunar lake"},
+    {n:"锐龙 5 8640U",b:"AMD",s:26,y:2024,a:"ryzen 5 8640u 轻薄本"},
+    {n:"酷睿 i5-1335U",b:"Intel",s:22,y:2023,a:"i5 1335u raptor lake-u"},
+    {n:"锐龙 5 7520U",b:"AMD",s:18,y:2023,a:"ryzen 5 7520u mendocino"},
+    {n:"Apple M2 Max",b:"Apple",s:58,y:2023,a:"苹果 m2max macbookpro16"},
+    {n:"Apple M1 Max",b:"Apple",s:50,y:2021,a:"苹果 m1max"},
+    {n:"酷睿 i9-13900HX",b:"Intel",s:50,y:2023,a:"i9 13900hx raptor lake-hx"},
+    {n:"Apple M1 Pro",b:"Apple",s:46,y:2021,a:"苹果 m1pro"},
+    {n:"Core 7 240H",b:"Intel",s:45,y:2025,a:"core 7 240h raptor lake refresh 新命名"},
+    {n:"酷睿 i7-12700H",b:"Intel",s:44,y:2022,a:"i7 12700h 12代 alder lake-h"},
+    {n:"酷睿 i7-13620H",b:"Intel",s:42,y:2023,a:"i7 13620h 13代"},
+    {n:"Core 5 220H",b:"Intel",s:41,y:2025,a:"core 5 220h raptor lake refresh 新命名"},
+    {n:"酷睿 i5-12450H",b:"Intel",s:34,y:2022,a:"i5 12450h 12代"},
+    {n:"锐龙 7 5800H",b:"AMD",s:36,y:2021,a:"ryzen 7 5800h cesar zen3 游戏本"},
+    {n:"Apple M1",b:"Apple",s:33,y:2020,a:"苹果 m1 air 首款"},
+    {n:"锐龙 5 5600H",b:"AMD",s:32,y:2021,a:"ryzen 5 5600h zen3"},
+    {n:"Core 7 150U",b:"Intel",s:30,y:2024,a:"core 7 150u raptor lake-u 新命名"},
+    {n:"Core 5 120U",b:"Intel",s:28,y:2024,a:"core 5 120u 新命名 轻薄本"},
+    {n:"锐龙 5 7530U",b:"AMD",s:27,y:2023,a:"ryzen 5 7530u barcelo-r"},
+    {n:"Core 3 100U",b:"Intel",s:20,y:2024,a:"core 3 100u 新命名 入门轻薄本"},
+    {n:"锐龙 3 7320U",b:"AMD",s:15,y:2022,a:"ryzen 3 7320u mendocino"},
+    {n:"酷睿 N95",b:"Intel",s:10,y:2023,a:"n95 alder lake-n 迷你主机"},
+    {n:"酷睿 N100",b:"Intel",s:12,y:2023,a:"n100 alder lake-n 入门"},
+    {n:"Apple M3 Ultra",b:"Apple",s:78,y:2025,a:"苹果 m3ultra mac studio"},
+    {n:"Apple M2 Ultra",b:"Apple",s:68,y:2023,a:"苹果 m2ultra mac studio"},
+    {n:"Apple M1 Ultra",b:"Apple",s:63,y:2022,a:"苹果 m1ultra"},
+    {n:"锐龙 9 7945HX",b:"AMD",s:54,y:2023,a:"ryzen 9 7945hx dragon range 游戏本"},
+    {n:"锐龙 9 7940H",b:"AMD",s:52,y:2023,a:"ryzen 9 7940h phoenix"},
+    {n:"酷睿 i9-12900HX",b:"Intel",s:49,y:2022,a:"i9 12900hx 12代 hx"},
+    {n:"酷睿 i7-13700H",b:"Intel",s:46,y:2023,a:"i7 13700h 13代"},
+    {n:"锐龙 7 4800H",b:"AMD",s:41,y:2020,a:"ryzen 7 4800h renoir 经典"},
+    {n:"酷睿 i7-10870H",b:"Intel",s:40,y:2020,a:"i7 10870h 10代 comet lake-h"},
+    {n:"酷睿 i7-11800H",b:"Intel",s:40,y:2021,a:"i7 11800h 11代 tiger lake-h"},
+    {n:"酷睿 Ultra 9 288V",b:"Intel",s:39,y:2025,a:"core ultra9 288v lunar lake"},
+    {n:"锐龙 5 6600H",b:"AMD",s:38,y:2022,a:"ryzen 5 6600h rembrandt"},
+    {n:"酷睿 i5-11320H",b:"Intel",s:36,y:2021,a:"i5 11320h 11代"},
+    {n:"锐龙 5 5500U",b:"AMD",s:28,y:2021,a:"ryzen 5 5500u 轻薄本"},
+    {n:"酷睿 i7-1165G7",b:"Intel",s:29,y:2020,a:"i7 1165g7 11代 轻薄本"},
+    {n:"酷睿 i5-10300H",b:"Intel",s:31,y:2020,a:"i5 10300h 10代"},
+    {n:"酷睿 i3-1115G4",b:"Intel",s:21,y:2021,a:"i3 1115g4 11代 入门"},
+    {n:"锐龙 7 3750H",b:"AMD",s:22,y:2019,a:"ryzen 7 3750h 游戏本"},
+    {n:"锐龙 5 3500U",b:"AMD",s:20,y:2019,a:"ryzen 5 3500u picasso 轻薄本"},
+    {n:"酷睿 i5-8250U",b:"Intel",s:18,y:2017,a:"i5 8250u 8代 经典轻薄本"},
+    {n:"酷睿 i7-8550U",b:"Intel",s:17,y:2017,a:"i7 8550u 8代"}
+  ]
+},
+{
+  id:"dgpu", icon:"🎮", name:"台式机显卡 GPU 天梯图", c:"#f59e0b",
+  sub:"桌面独立显卡 · 游戏综合性能指数",
+  items:[
+    {n:"RTX 5090",b:"NVIDIA",s:100,y:2025,a:"5090 rtx5090 d v2 blackwell"},
+    {n:"RTX PRO 6000 Blackwell",b:"NVIDIA",s:106,y:2026,a:"rtx pro 6000 专业卡"},
+    {n:"RTX 5090 D",b:"NVIDIA",s:95,y:2025,a:"5090d 中国特供"},
+    {n:"RTX 4090",b:"NVIDIA",s:85,y:2022,a:"4090 ada"},
+    {n:"RTX 5080",b:"NVIDIA",s:78,y:2025,a:"5080"},
+    {n:"RTX 4080 SUPER",b:"NVIDIA",s:74,y:2024,a:"4080s 4080super"},
+    {n:"RX 7900 XTX",b:"AMD",s:72,y:2022,a:"7900xtx rdna3"},
+    {n:"RX 9070 XT",b:"AMD",s:69,y:2025,a:"9070xt rdna4"},
+    {n:"RTX 5070 Ti",b:"NVIDIA",s:68,y:2025,a:"5070ti"},
+    {n:"RTX 4080",b:"NVIDIA",s:67,y:2022,a:"4080"},
+    {n:"RX 9070 GRE",b:"AMD",s:64,y:2025,a:"9070gre"},
+    {n:"RX 7900 XT",b:"AMD",s:63,y:2022,a:"7900xt"},
+    {n:"RX 9070",b:"AMD",s:62,y:2025,a:"9070"},
+    {n:"RTX 4070 Ti SUPER",b:"NVIDIA",s:61,y:2024,a:"4070tis 4070tisuper"},
+    {n:"RTX 5070",b:"NVIDIA",s:56,y:2025,a:"5070"},
+    {n:"RTX 4070 Ti",b:"NVIDIA",s:55,y:2023,a:"4070ti"},
+    {n:"RX 7900 GRE",b:"AMD",s:52,y:2023,a:"7900gre"},
+    {n:"RTX 4070 SUPER",b:"NVIDIA",s:51,y:2024,a:"4070s 4070super"},
+    {n:"RTX 5060 Ti 16GB",b:"NVIDIA",s:43,y:2025,a:"5060ti 16g"},
+    {n:"RTX 4070",b:"NVIDIA",s:45,y:2023,a:"4070"},
+    {n:"RX 7800 XT",b:"AMD",s:44,y:2023,a:"7800xt rdna3"},
+    {n:"RX 9060 XT 16GB",b:"AMD",s:43,y:2025,a:"9060xt"},
+    {n:"RTX 5060 Ti 8GB",b:"NVIDIA",s:42,y:2025,a:"5060ti 8g"},
+    {n:"RX 6950 XT",b:"AMD",s:40,y:2022,a:"6950xt rdna2"},
+    {n:"RTX 5060",b:"NVIDIA",s:38,y:2025,a:"5060"},
+    {n:"RX 6800 XT",b:"AMD",s:37,y:2020,a:"6800xt"},
+    {n:"RX 9060",b:"AMD",s:36,y:2025,a:"9060"},
+    {n:"RTX 3080 12GB",b:"NVIDIA",s:35,y:2022,a:"3080 12g ampere"},
+    {n:"Arc B580",b:"Intel",s:34,y:2024,a:"b580 battlemage 12g"},
+    {n:"RTX 4060 Ti",b:"NVIDIA",s:33,y:2023,a:"4060ti"},
+    {n:"RTX 3070 Ti",b:"NVIDIA",s:31,y:2021,a:"3070ti"},
+    {n:"RTX 4060",b:"NVIDIA",s:30,y:2023,a:"4060"},
+    {n:"RX 6800",b:"AMD",s:29,y:2020,a:"6800"},
+    {n:"RX 7700 XT",b:"AMD",s:28,y:2024,a:"7700xt"},
+    {n:"RTX 3070",b:"NVIDIA",s:27,y:2020,a:"3070"},
+    {n:"Arc B570",b:"Intel",s:22,y:2025,a:"b570 battlemage"},
+    {n:"RX 7600 XT",b:"AMD",s:21,y:2024,a:"7600xt"},
+    {n:"RTX 2080 Ti",b:"NVIDIA",s:32,y:2018,a:"2080ti turing"},
+    {n:"RX 7600",b:"AMD",s:23,y:2023,a:"7600"},
+    {n:"RTX 3060 Ti",b:"NVIDIA",s:22,y:2020,a:"3060ti"},
+    {n:"Arc A750",b:"Intel",s:21,y:2022,a:"a750 alchemist"},
+    {n:"RTX 5050",b:"NVIDIA",s:20,y:2025,a:"5050"},
+    {n:"RTX 3060 12GB",b:"NVIDIA",s:19,y:2021,a:"3060"},
+    {n:"RTX 2060",b:"NVIDIA",s:15,y:2019,a:"2060super"},
+    {n:"GTX 1080 Ti",b:"NVIDIA",s:17,y:2017,a:"1080ti pascal"},
+    {n:"RX 6600",b:"AMD",s:13,y:2021,a:"6600"},
+    {n:"GTX 1660 SUPER",b:"NVIDIA",s:11,y:2019,a:"1660s"},
+    {n:"RX 6500 XT",b:"AMD",s:8,y:2022,a:"6500xt"},
+    {n:"GTX 1060 6GB",b:"NVIDIA",s:8,y:2016,a:"1060"},
+    {n:"GTX 1650",b:"NVIDIA",s:6,y:2019,a:"1650"},
+    {n:"Arc A770",b:"Intel",s:23,y:2022,a:"a770 16g alchemist"},
+    {n:"RX 6650 XT",b:"AMD",s:17,y:2022,a:"6650xt rdna2"},
+    {n:"RTX 2060 SUPER",b:"NVIDIA",s:17,y:2019,a:"2060s turing"},
+    {n:"Arc A580",b:"Intel",s:16,y:2023,a:"a580 8g alchemist"},
+    {n:"GTX 1660 Ti",b:"NVIDIA",s:10,y:2019,a:"1660ti turing"},
+    {n:"GTX 1650 SUPER",b:"NVIDIA",s:10,y:2019,a:"1650s"},
+    {n:"RX 5500 XT",b:"AMD",s:8,y:2019,a:"5500xt navi14"},
+    {n:"RX 580 8GB",b:"AMD",s:5.5,y:2017,a:"580 polaris 矿卡时代经典"},
+    {n:"GTX 1050 Ti",b:"NVIDIA",s:5,y:2016,a:"1050ti pascal 入门"},
+    {n:"GT 1030",b:"NVIDIA",s:2.5,y:2017,a:"1030 gt1030"},
+    {n:"RTX 5090 D v2",b:"NVIDIA",s:93,y:2025,a:"5090d v2 特供"},
+    {n:"RX 6750 XT",b:"AMD",s:21,y:2022,a:"6750xt rdna2"},
+    {n:"RTX 2070 SUPER",b:"NVIDIA",s:20,y:2019,a:"2070s turing"},
+    {n:"RTX 2070",b:"NVIDIA",s:18,y:2018,a:"2070 turing"},
+    {n:"RX 5700 XT",b:"AMD",s:18,y:2019,a:"5700xt rdna1 navi10"},
+    {n:"RTX 3050 8GB",b:"NVIDIA",s:16,y:2024,a:"3050 8g ampere 入门"},
+    {n:"RX 6600 XT",b:"AMD",s:15,y:2021,a:"6600xt"},
+    {n:"GTX 980 Ti",b:"NVIDIA",s:13,y:2015,a:"980ti maxwell 旗舰"},
+    {n:"GTX 980",b:"NVIDIA",s:12,y:2014,a:"980 maxwell"},
+    {n:"GTX 970",b:"NVIDIA",s:10,y:2014,a:"970 maxwell"},
+    {n:"GTX 1070",b:"NVIDIA",s:11,y:2016,a:"1070 pascal"},
+    {n:"GTX 1660",b:"NVIDIA",s:9,y:2019,a:"1660 turing"},
+    {n:"RX 590",b:"AMD",s:8,y:2018,a:"590 polaris"},
+    {n:"Arc A380",b:"Intel",s:8,y:2022,a:"a380 入门亮机卡"},
+    {n:"RX 6400",b:"AMD",s:7,y:2022,a:"6400 navi24 入门"},
+    {n:"GTX 1050",b:"NVIDIA",s:4,y:2016,a:"1050 pascal 入门"},
+    {n:"GTX 750 Ti",b:"NVIDIA",s:4,y:2014,a:"750ti maxwell 老机升级神卡"},
+    {n:"RX 560",b:"AMD",s:3.2,y:2017,a:"560 polaris 入门"},
+    {n:"RX 550",b:"AMD",s:2.2,y:2017,a:"550 polaris 入门"},
+    {n:"GT 1010",b:"NVIDIA",s:1.5,y:2021,a:"1010 亮机卡"}
+  ]
+},
+{
+  id:"lgpu", icon:"🏷️", name:"笔记本显卡 GPU 天梯图", c:"#10b981",
+  sub:"移动独立显卡 / 核显 · 游戏综合性能指数（同型号笔记本功耗差异可致 ±15%）",
+  items:[
+    {n:"RTX 5090 Laptop",b:"NVIDIA",s:100,y:2025,a:"5090 laptop 移动版 游戏本"},
+    {n:"RTX 5080 Laptop",b:"NVIDIA",s:84,y:2025,a:"5080 laptop"},
+    {n:"RTX 4090 Laptop",b:"NVIDIA",s:78,y:2023,a:"4090 laptop 移动版"},
+    {n:"M5 Max 集成 GPU (40核)",b:"Apple",s:76,y:2026,a:"苹果 m5max gpu"},
+    {n:"RTX 4080 Laptop",b:"NVIDIA",s:67,y:2023,a:"4080 laptop"},
+    {n:"RTX 5070 Ti Laptop",b:"NVIDIA",s:62,y:2025,a:"5070ti laptop"},
+    {n:"M4 Max 集成 GPU (40核)",b:"Apple",s:60,y:2024,a:"苹果 m4max gpu"},
+    {n:"Radeon 8060S",b:"AMD",s:46,y:2025,a:"8060s strix halo 核显 ai max 395"},
+    {n:"RTX 5070 Laptop",b:"NVIDIA",s:49,y:2025,a:"5070 laptop"},
+    {n:"RX 7800M",b:"AMD",s:47,y:2023,a:"7800m rdna3 笔记本"},
+    {n:"RTX 4070 Laptop",b:"NVIDIA",s:44,y:2023,a:"4070 laptop"},
+    {n:"RTX 5060 Laptop",b:"NVIDIA",s:42,y:2025,a:"5060 laptop"},
+    {n:"RTX 3080 Ti Laptop",b:"NVIDIA",s:41,y:2022,a:"3080ti laptop ampere"},
+    {n:"RTX 3070 Ti Laptop",b:"NVIDIA",s:38,y:2022,a:"3070ti laptop"},
+    {n:"RTX 5050 Laptop",b:"NVIDIA",s:30,y:2025,a:"5050 laptop"},
+    {n:"RTX 4060 Laptop",b:"NVIDIA",s:35,y:2023,a:"4060 laptop"},
+    {n:"RX 7700S",b:"AMD",s:33,y:2023,a:"7700s 轻薄本"},
+    {n:"RX 7600M XT",b:"AMD",s:32,y:2023,a:"7600mxt"},
+    {n:"Arc A770M",b:"Intel",s:31,y:2022,a:"a770m alchemist"},
+    {n:"RTX 3070 Laptop",b:"NVIDIA",s:30,y:2021,a:"3070 laptop"},
+    {n:"RTX 4050 Laptop",b:"NVIDIA",s:28,y:2023,a:"4050 laptop"},
+    {n:"RTX 3060 Laptop",b:"NVIDIA",s:27,y:2021,a:"3060 laptop"},
+    {n:"Arc B390",b:"Intel",s:26,y:2025,a:"b390 battlemage 移动"},
+    {n:"RTX 2080 SUPER Laptop",b:"NVIDIA",s:24,y:2020,a:"2080super laptop"},
+    {n:"RTX 3050 6GB Laptop",b:"NVIDIA",s:18,y:2024,a:"3050 6g laptop"},
+    {n:"GTX 1080 Laptop",b:"NVIDIA",s:17,y:2017,a:"1080 laptop pascal"},
+    {n:"RX 6800M",b:"AMD",s:17,y:2021,a:"6800m"},
+    {n:"RTX 2060 Laptop",b:"NVIDIA",s:16,y:2019,a:"2060 laptop"},
+    {n:"RTX 3050 Ti Laptop",b:"NVIDIA",s:15,y:2021,a:"3050ti laptop"},
+    {n:"GTX 1070 Laptop",b:"NVIDIA",s:14,y:2016,a:"1070 laptop"},
+    {n:"RX 6600M",b:"AMD",s:14,y:2021,a:"6600m"},
+    {n:"RTX 3050 Laptop",b:"NVIDIA",s:13,y:2021,a:"3050 laptop 4g"},
+    {n:"Intel Arc 140T",b:"Intel",s:12,y:2025,a:"arc140t arrow lake-h 核显"},
+    {n:"GTX 1650 Laptop",b:"NVIDIA",s:11,y:2019,a:"1650 laptop"},
+    {n:"Radeon 890M",b:"AMD",s:10,y:2024,a:"890m strix point 核显 780m继任"},
+    {n:"M4 集成 GPU (10核)",b:"Apple",s:10,y:2024,a:"苹果 m4 gpu"},
+    {n:"RTX 2050 Laptop",b:"NVIDIA",s:8,y:2022,a:"2050 laptop"},
+    {n:"Radeon 780M",b:"AMD",s:7.5,y:2023,a:"780m 6800u phoenix 核显"},
+    {n:"Intel Arc Graphics 8核 (Lunar Lake)",b:"Intel",s:6,y:2024,a:"arc 130v lunar lake 核显"},
+    {n:"Radeon 680M",b:"AMD",s:5.5,y:2022,a:"680m rembrandt 核显"},
+    {n:"Intel Iris Xe 96EU",b:"Intel",s:2.5,y:2020,a:"irisxe 96eu tiger lake 核显"},
+    {n:"Radeon 8050S",b:"AMD",s:40,y:2026,a:"8050s strix halo 32cu 核显"},
+    {n:"M4 Pro 集成 GPU (20核)",b:"Apple",s:35,y:2024,a:"苹果 m4pro gpu"},
+    {n:"RX 7600M",b:"AMD",s:26,y:2023,a:"7600m rdna3"},
+    {n:"M3 Pro 集成 GPU (18核)",b:"Apple",s:26,y:2023,a:"苹果 m3pro gpu"},
+    {n:"Arc A530M",b:"Intel",s:20,y:2023,a:"a530m alchemist 移动"},
+    {n:"RX 6500M",b:"AMD",s:14,y:2022,a:"6500m navi24"},
+    {n:"GTX 1660 Ti Laptop",b:"NVIDIA",s:12,y:2019,a:"1660ti laptop turing"},
+    {n:"M5 集成 GPU (10核)",b:"Apple",s:11,y:2025,a:"苹果 m5 gpu"},
+    {n:"GTX 1060 Laptop",b:"NVIDIA",s:9,y:2016,a:"1060 laptop pascal 经典"},
+    {n:"Radeon 860M",b:"AMD",s:8.5,y:2025,a:"860m strix point 核显"},
+    {n:"Radeon 8040S",b:"AMD",s:7.8,y:2025,a:"8040s hawk point refresh 核显"},
+    {n:"GTX 1050 Laptop",b:"NVIDIA",s:6,y:2016,a:"1050 laptop 入门"},
+    {n:"MX 450",b:"NVIDIA",s:4,y:2020,a:"mx450 轻薄本独显"},
+    {n:"MX 550",b:"NVIDIA",s:5,y:2022,a:"mx550 turing 轻薄本"},
+    {n:"Radeon 660M",b:"AMD",s:3,y:2022,a:"660m rembrandt 小核显"},
+    {n:"Intel Iris Xe 80EU",b:"Intel",s:2,y:2021,a:"irisxe 80eu 核显"},
+    {n:"Radeon 610M",b:"AMD",s:1.5,y:2023,a:"610m mendocino 入门核显"},
+    {n:"Vega 8",b:"AMD",s:2,y:2021,a:"vega8 5600g 核显"},
+    {n:"M3 Max 集成 GPU (40核)",b:"Apple",s:55,y:2023,a:"苹果 m3max gpu"},
+    {n:"M2 Max 集成 GPU (38核)",b:"Apple",s:48,y:2023,a:"苹果 m2max gpu"},
+    {n:"M1 Max 集成 GPU (32核)",b:"Apple",s:44,y:2021,a:"苹果 m1max gpu"},
+    {n:"M2 Pro 集成 GPU (19核)",b:"Apple",s:30,y:2023,a:"苹果 m2pro gpu"},
+    {n:"M1 Pro 集成 GPU (16核)",b:"Apple",s:28,y:2021,a:"苹果 m1pro gpu"},
+    {n:"RTX 2080 Laptop",b:"NVIDIA",s:22,y:2019,a:"2080 laptop turing 旗舰"},
+    {n:"RTX 2070 Laptop",b:"NVIDIA",s:21,y:2019,a:"2070 laptop turing"},
+    {n:"RX 5600M",b:"AMD",s:19,y:2020,a:"5600m navi10 笔记本"},
+    {n:"RX 6700M",b:"AMD",s:18,y:2021,a:"6700m rdna2 笔记本"},
+    {n:"GTX 1050 Ti Laptop",b:"NVIDIA",s:8,y:2016,a:"1050ti laptop pascal"},
+    {n:"GTX 1650 Ti Laptop",b:"NVIDIA",s:12,y:2020,a:"1650ti laptop turing"},
+    {n:"RX 5500M",b:"AMD",s:11,y:2019,a:"5500m navi14 笔记本"},
+    {n:"GTX 980M",b:"NVIDIA",s:10,y:2014,a:"980m maxwell 经典游戏本"},
+    {n:"GTX 970M",b:"NVIDIA",s:8,y:2015,a:"970m maxwell"},
+    {n:"M3 集成 GPU (10核)",b:"Apple",s:7.5,y:2023,a:"苹果 m3 gpu"},
+    {n:"M2 集成 GPU (10核)",b:"Apple",s:6.5,y:2022,a:"苹果 m2 gpu"},
+    {n:"M1 集成 GPU (8核)",b:"Apple",s:5.5,y:2020,a:"苹果 m1 gpu 首款自研"},
+    {n:"MX 350",b:"NVIDIA",s:5.5,y:2020,a:"mx350 轻薄本独显"},
+    {n:"MX 330",b:"NVIDIA",s:3.5,y:2021,a:"mx330 轻薄本独显"},
+    {n:"MX 250",b:"NVIDIA",s:2.5,y:2019,a:"mx250 轻薄本独显"}
+  ]
+}
+];
+
+/* ============ 渲染 ============ */
+const tabsEl = document.getElementById("tabs");
+const ladderEl = document.getElementById("ladder");
+const searchEl = document.getElementById("search");
+const sboxEl = document.getElementById("sbox");
+const countEl = document.getElementById("count");
+const secTitle = document.getElementById("secTitle");
+const secSub = document.getElementById("secSub");
+const legendEl = document.getElementById("legend");
+const clearEl = document.getElementById("sclear");
+let cur = DATA[0].id;
+let query = "";
+
+/* tabs */
+DATA.forEach(d=>{
+  const t=document.createElement("div");
+  t.className="tab";t.dataset.id=d.id;
+  t.style.setProperty("--tc",d.c);
+  t.innerHTML=`<span class="ico">${d.icon}</span>${d.name.replace(" 天梯图","")}`;
+  t.onclick=()=>switchTab(d.id);
+  tabsEl.appendChild(t);
+});
+
+/* legend */
+legendEl.innerHTML = [["S","旗舰","t-S"],["A","高端","t-A"],["B","主流","t-B"],["C","中端","t-C"],["D","入门","t-D"]]
+  .map(([k,l,c])=>`<span class="li"><span class="sw ${c}"></span>${k} · ${l}</span>`).join("")
+  + `<span class="li" style="margin-left:auto;color:var(--ink-3)">● 品牌色见条目左侧圆点</span>`;
+
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function hl(name,q){
+  if(!q) return esc(name);
+  const i=name.toLowerCase().indexOf(q);
+  if(i<0) return esc(name);
+  return esc(name.slice(0,i))+"<mark>"+esc(name.slice(i,i+q.length))+"</mark>"+esc(name.slice(i+q.length));
+}
+
+function render(){
+  const d=DATA.find(x=>x.id===cur);
+  secTitle.innerHTML=`<span style="background:linear-gradient(90deg,${d.c},color-mix(in srgb,${d.c} 55%,#ec4899));-webkit-background-clip:text;background-clip:text;color:transparent">${d.icon} ${esc(d.name)}</span>`;
+  secSub.textContent=d.sub;
+  d.items.sort((a,b)=>b.s-a.s);
+  const q=query.trim().toLowerCase();
+  sboxEl.classList.toggle("hasval",!!q);
+  let shown=0;
+  const maxScore=Math.max(...d.items.map(i=>i.s));
+  const frag=[];
+  d.items.forEach((it,idx)=>{
+    const hay=(it.n+" "+it.b+" "+(it.a||"")).toLowerCase();
+    if(q && !hay.includes(q)) return;
+    shown++;
+    const [tk,tl]=tierOf(it.s);
+    const tc=TIER_COLORS[tk];
+    const brandColor=BRAND[it.b]||BRAND["其他"];
+    frag.push(`
+      <div class="row" style="animation-delay:${Math.min(idx*22,400)}ms">
+        <div class="rank">${idx+1}</div>
+        <div class="tier t-${tk}" title="${tk} 档 · ${tl}">${tk}</div>
+        <div class="name">
+          <div class="nm">${hl(it.n,q)}</div>
+          <div class="meta">
+            <span class="bdot" style="background:${brandColor}"></span>
+            <span>${esc(it.b)}</span><span>${it.y} 年</span><span>${tl}</span>
+          </div>
+        </div>
+        <div class="barwrap"><div class="bar" style="width:0%;background:linear-gradient(90deg,color-mix(in srgb,${tc} 62%,white),${tc})" data-w="${(it.s/maxScore*100).toFixed(1)}" title="${tk} 档 · ${tl}"></div></div>
+        <div class="score" style="color:${tc}">${it.s}</div>
+      </div>`);
+  });
+  ladderEl.innerHTML = shown? frag.join("") : `<div class="empty">没有找到与「${esc(query)}」匹配的硬件 😢<br><span style="font-size:12px">试试更短的关键词，如 5090 / 锐龙 / 天玑 / M4</span></div>`;
+  countEl.innerHTML = q? `匹配 <b>${shown}</b> / ${d.items.length} 项` : `共 <b>${d.items.length}</b> 项`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    ladderEl.querySelectorAll(".bar").forEach(b=>b.style.width=b.dataset.w+"%");
+  }));
+}
+
+function switchTab(id){
+  if(cur===id) {render();return;}
+  cur=id;
+  tabsEl.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.id===id));
+  render();
+}
+
+searchEl.addEventListener("input",()=>{query=searchEl.value;render()});
+clearEl.onclick=()=>{searchEl.value="";query="";render();searchEl.focus()};
+document.addEventListener("keydown",e=>{
+  if(e.key==="/" && document.activeElement!==searchEl){e.preventDefault();searchEl.focus()}
+  if(e.key==="Escape" && document.activeElement===searchEl){searchEl.value="";query="";render();searchEl.blur()}
+});
+
+switchTab("soc");
+</script>
+</body>
+</html>
